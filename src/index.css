@@ -1,0 +1,180 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+html, body {
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: #0d0a08;
+  color: #f5ead2;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  overflow-x: hidden;
+}
+
+/* ---------- 背景纹理 ---------- */
+.bg-palace {
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(255, 183, 77, 0.16), transparent 60%),
+    radial-gradient(900px 500px at 85% 110%, rgba(230, 57, 70, 0.14), transparent 60%),
+    radial-gradient(700px 500px at 10% 100%, rgba(46, 196, 182, 0.07), transparent 60%),
+    linear-gradient(180deg, #171110 0%, #0d0a08 55%, #0a0807 100%);
+}
+.bg-grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E");
+  z-index: 5;
+}
+
+.gold-text {
+  background: linear-gradient(180deg, #fff6d8 0%, #ffdf8a 30%, #e8a93d 55%, #ffedb0 75%, #c07f1f 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 10px rgba(255, 200, 90, 0.25));
+}
+.red-seal {
+  background: linear-gradient(145deg, #e63946, #9d0208);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -3px 8px rgba(0,0,0,0.4), 0 8px 24px rgba(230,57,70,0.35);
+}
+
+/* ---------- 棋盘 ---------- */
+.board-wood {
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(255,255,255,0.35), transparent 50%),
+    linear-gradient(165deg, #f6d493 0%, #eab96a 18%, #d9993f 45%, #c67f2b 70%, #a8621d 100%);
+  box-shadow:
+    0 24px 60px rgba(0,0,0,0.55),
+    0 4px 16px rgba(0,0,0,0.5),
+    inset 0 2px 0 rgba(255,255,255,0.5),
+    inset 0 -4px 12px rgba(90,40,0,0.35);
+}
+.board-inner {
+  background:
+    linear-gradient(180deg, rgba(120,60,10,0.10), transparent 20%, transparent 80%, rgba(120,60,10,0.14)),
+    linear-gradient(180deg, #f9e2ae 0%, #f3d18a 50%, #eec27a 100%);
+  box-shadow: inset 0 0 0 2px rgba(90,40,5,0.55), inset 0 0 30px rgba(120,60,0,0.18);
+}
+
+.piece-shadow {
+  filter: drop-shadow(0 6px 6px rgba(60,20,0,0.45)) drop-shadow(0 1px 0 rgba(255,255,255,0.4));
+}
+.piece-body {
+  transition: transform 0.28s cubic-bezier(0.22, 1.4, 0.36, 1), box-shadow 0.2s ease;
+  will-change: transform;
+}
+.piece-selected .piece-body {
+  transform: scale(1.12);
+}
+
+/* ---------- 动画 ---------- */
+@keyframes shake-sm {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-5px, 3px) rotate(-0.4deg); }
+  40% { transform: translate(5px, -3px) rotate(0.4deg); }
+  60% { transform: translate(-4px, -2px); }
+  80% { transform: translate(3px, 2px); }
+}
+@keyframes shake-lg {
+  0%, 100% { transform: translate(0,0) rotate(0); }
+  10% { transform: translate(-10px, 6px) rotate(-0.8deg); }
+  25% { transform: translate(9px, -7px) rotate(0.7deg); }
+  40% { transform: translate(-8px, -5px) rotate(-0.6deg); }
+  55% { transform: translate(7px, 6px) rotate(0.5deg); }
+  70% { transform: translate(-5px, 3px); }
+  85% { transform: translate(4px, -2px); }
+}
+.shake-sm { animation: shake-sm 0.32s ease; }
+.shake-lg { animation: shake-lg 0.5s ease; }
+
+@keyframes pop-in {
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+.pop-in { animation: pop-in 0.25s cubic-bezier(0.22, 1.4, 0.36, 1) both; }
+
+@keyframes float-y {
+  0%, 100% { transform: translateY(-6px) rotate(var(--rot, 0deg)); }
+  50% { transform: translateY(6px) rotate(var(--rot, 0deg)); }
+}
+.float-y { animation: float-y 5s ease-in-out infinite; }
+
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(255,215,106,0.9), 0 0 18px 4px rgba(255,180,60,0.7); }
+  50% { box-shadow: 0 0 0 3px rgba(255,215,106,1), 0 0 30px 10px rgba(255,180,60,0.9); }
+}
+.glow-selected { animation: glow-pulse 1.1s ease-in-out infinite; }
+
+@keyframes check-flash {
+  0%, 100% { box-shadow: 0 0 0 3px #ff3b3b, 0 0 22px 6px rgba(255,40,40,0.8); }
+  50% { box-shadow: 0 0 0 5px #ff8080, 0 0 36px 12px rgba(255,40,40,1); }
+}
+.check-flash { animation: check-flash 0.8s ease-in-out infinite; }
+
+@keyframes dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50% { transform: scale(1.35); opacity: 1; }
+}
+.dot-pulse { animation: dot-pulse 0.9s ease-in-out infinite; }
+
+@keyframes score-float {
+  0% { transform: translate(-50%, 0) scale(0.7); opacity: 0; }
+  15% { transform: translate(-50%, -10px) scale(1.15); opacity: 1; }
+  100% { transform: translate(-50%, -70px) scale(1); opacity: 0; }
+}
+.score-float { animation: score-float 1.1s ease-out forwards; }
+
+@keyframes overlay-in {
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to { opacity: 1; backdrop-filter: blur(8px); }
+}
+.overlay-in { animation: overlay-in 0.25s ease both; }
+
+@keyframes card-up {
+  from { transform: translateY(26px) scale(0.97); opacity: 0; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+.card-up { animation: card-up 0.35s cubic-bezier(0.22, 1.2, 0.36, 1) both; }
+
+@keyframes banner-sweep {
+  0% { transform: translateX(-120%) skewX(-18deg); }
+  100% { transform: translateX(240%) skewX(-18deg); }
+}
+.banner-sweep { animation: banner-sweep 2.6s ease-in-out infinite; }
+
+@keyframes thinking-dot {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+.thinking-dot { animation: thinking-dot 1s infinite; }
+
+@keyframes combo-pop {
+  0% { transform: scale(0.5) rotate(-6deg); opacity: 0; }
+  50% { transform: scale(1.2) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+.combo-pop { animation: combo-pop 0.4s cubic-bezier(0.22,1.4,0.36,1) both; }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+/* 棋子移动的平滑过渡由 transform 实现 */
+.piece-layer {
+  transition: transform 0.3s cubic-bezier(0.3, 1.1, 0.4, 1);
+  will-change: transform, left, top;
+}
+
+button { -webkit-tap-highlight-color: transparent; }
