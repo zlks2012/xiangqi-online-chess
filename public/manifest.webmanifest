@@ -1,0 +1,52 @@
+{
+  "name": "中国象棋 · 楚河汉界",
+  "short_name": "中国象棋",
+  "description": "Canvas 渲染 · 后台线程 AI · 七层深搜的四档人机对弈，支持房间号联机对战，离线可玩。",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "fullscreen", "minimal-ui"],
+  "orientation": "portrait",
+  "lang": "zh-CN",
+  "dir": "ltr",
+  "background_color": "#08060a",
+  "theme_color": "#08060a",
+  "categories": ["games", "entertainment"],
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "快速对弈",
+      "short_name": "对弈",
+      "description": "直接开始一局中等难度人机对弈",
+      "url": "./?quick=1",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "联机对战",
+      "short_name": "联机",
+      "description": "创建或加入房间与朋友对弈",
+      "url": "./?online=1",
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
