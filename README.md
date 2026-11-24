@@ -4,6 +4,8 @@
 
 本仓库的 **main 分支**为 v2.0.0 版本（全新引擎）；v1.0.0 的 DOM 渲染版见 [Release v1.0.0](https://github.com/zlks2012/xiangqi-online-chess/releases/tag/v1.0.0)。
 
+**📌 两代版本完整对比见 [COMPARISON.md](./COMPARISON.md)**（架构 / AI / 联机实现 / 功能细节 / 选型建议）
+
 ## 在线体验
 
 **https://xiangqi-chess-app.app.workbuddy.host/?sharecode=QBJPCYEMMN**
