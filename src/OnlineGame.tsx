@@ -32,6 +32,8 @@ import {
 import type { Layout, Scene } from "./game/renderer";
 import { computeLayout, sqToPx } from "./game/renderer";
 import { cloud } from "./game/cloud";
+import ReviewOverlay, { type ReviewInput } from "./ReviewOverlay";
+import { reportMatchResult } from "./Ladder";
 import { cn } from "./utils/cn";
 
 /* ------------------------------------------------------------------ */
@@ -116,6 +118,7 @@ export default function OnlineGame({ onExit }: { onExit: () => void }) {
   const [copied, setCopied] = useState(false);
   const [netOk, setNetOk] = useState(true);
   const [winner, setWinner] = useState<"r" | "b" | null>(null);
+  const [review, setReview] = useState<ReviewInput | null>(null);
   const [, force] = useState(0);
   const sync = useCallback(() => force((v) => v + 1), []);
 
@@ -199,6 +202,7 @@ export default function OnlineGame({ onExit }: { onExit: () => void }) {
 
 
   /* ---------- 终局判定 ---------- */
+  const reportedRef = useRef(false);
   const settle = useCallback((b: Board, count: number, r: RoomRow | null) => {
     const sideToMove: number = count % 2 === 0 ? RED : BLACK;
     const loser = gameResult(b, sideToMove);
@@ -215,8 +219,15 @@ export default function OnlineGame({ onExit }: { onExit: () => void }) {
           .eq("status", "playing")
           .then(() => undefined, () => undefined);
       }
+      // 天梯上报（完整对局才计分，每房一次）
+      if (r && r.red_seat && r.black_seat && !reportedRef.current) {
+        reportedRef.current = true;
+        const mySeat = seat;
+        const oppSeat = r.red_seat === seat ? r.black_seat : r.red_seat;
+        void reportMatchResult(mySeat, oppSeat, w === myColorRef.current ? "win" : "lose");
+      }
     }
-  }, []);
+  }, [seat]);
 
   /* ---------- 应用远端棋步（追赶模式，逐枚动画） ---------- */
   const applyRemote = useCallback(
@@ -296,6 +307,7 @@ export default function OnlineGame({ onExit }: { onExit: () => void }) {
     fx.reset();
     appliedRef.current = 0;
     winnerRef.current = null;
+    reportedRef.current = false;
     setWinner(null);
     myColorRef.current = color;
     setMyColor(color);
@@ -621,6 +633,27 @@ export default function OnlineGame({ onExit }: { onExit: () => void }) {
     window.setTimeout(() => setCopied(false), 1600);
   };
 
+  /* ---------- 复盘：重建每步（含吃子与走子方） ---------- */
+  const openReview = useCallback(async () => {
+    const r = roomRef.current;
+    if (!r || !r.moves.length) return;
+    const b = initialBoard();
+    const recs: { move: number; side: number; cap: number }[] = [];
+    let side = RED;
+    for (const m of r.moves) {
+      const cap = b[mTo(m)];
+      recs.push({ move: m, side, cap });
+      makeMove(b, m);
+      side = -side;
+    }
+    setReview({
+      moves: recs,
+      startBoard: initialBoard(),
+      result: winnerRef.current === myColorRef.current ? "win" : "lose",
+      title: `联机对局 · 房间 ${r.code}`,
+    });
+  }, []);
+
   const leave = () => {
     roomRef.current = null;
     setRoom(null);
@@ -851,10 +884,18 @@ export default function OnlineGame({ onExit }: { onExit: () => void }) {
           {copied ? <IconCheck className="h-4 w-4 text-jade" /> : <IconCopy className="h-4 w-4" />}
           {copied ? "已复制" : "房间号"}
         </Btn>
+        {winner && room?.moves?.length ? (
+          <Btn variant="gold" onClick={() => void openReview()} className="shrink-0 px-3 py-2 text-xs">
+            复盘
+          </Btn>
+        ) : null}
         <Btn variant="danger" onClick={leave} className="shrink-0 px-3 py-2 text-xs">
           <IconFlip className="h-4 w-4" /> 离开
         </Btn>
       </div>
+      {review && (
+        <ReviewOverlay input={review} onExit={() => setReview(null)} />
+      )}
       <div className="h-[env(safe-area-inset-bottom,0px)]" />
     </div>
   );

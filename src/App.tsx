@@ -17,6 +17,9 @@ import {
   Panel,
 } from "./components/ui";
 import OnlineGame from "./OnlineGame";
+import DailyPuzzle from "./DailyPuzzle";
+import Ladder from "./Ladder";
+import ReviewOverlay, { type ReviewInput } from "./ReviewOverlay";
 import { sound } from "./audio/sound";
 import { AIClient } from "./game/aiClient";
 import { Effects } from "./game/effects";
@@ -118,6 +121,9 @@ export default function App() {
   const [, force] = useState(0);
   const sync = useCallback(() => force((v) => v + 1), []);
   const [online, setOnline] = useState(false);
+  const [daily, setDaily] = useState(false);
+  const [ladder, setLadder] = useState(false);
+  const [review, setReview] = useState<ReviewInput | null>(null);
 
   /* ---------- PWA 安装 ---------- */
   const [installPrompt, setInstallPrompt] = useState<{ prompt: () => Promise<void> } | null>(null);
@@ -181,6 +187,7 @@ export default function App() {
   const comboRef = useRef(0);
   const bookRef = useRef<ScoreBook>(emptyBook());
   const histRef = useRef<{ move: number; cap: number; side: number; key: string }[]>([]);
+  const startBoardRef = useRef<Board>(initialBoard());
   const repRef = useRef<Map<string, number>>(new Map());
   const searchIdRef = useRef(0);
   const pendingAiRef = useRef<number | null>(null);
@@ -513,6 +520,7 @@ export default function App() {
       setFlip(playerS === BLACK);
       fx.reset();
       histRef.current = [];
+      startBoardRef.current = Int8Array.from(b);
       repRef.current = new Map();
       repRef.current.set(posKey(b, RED), 1);
       quietRef.current = 0;
@@ -876,8 +884,22 @@ export default function App() {
   }, [showThreat, phase, computeThreat]);
 
   /* ---------- render ---------- */
+  if (review) {
+    return (
+      <ReviewOverlay
+        input={review}
+        onExit={() => setReview(null)}
+      />
+    );
+  }
   if (online) {
     return <OnlineGame onExit={() => setOnline(false)} />;
+  }
+  if (daily) {
+    return <DailyPuzzle onExit={() => setDaily(false)} />;
+  }
+  if (ladder) {
+    return <Ladder onExit={() => setLadder(false)} />;
   }
   if (phase === "menu") {
     return (
@@ -903,6 +925,16 @@ export default function App() {
           toggleMute={toggleMute}
           onOnline={() => {
             setOnline(true);
+            sound.resume();
+            sound.play("ui");
+          }}
+          onDaily={() => {
+            setDaily(true);
+            sound.resume();
+            sound.play("ui");
+          }}
+          onLadder={() => {
+            setLadder(true);
             sound.resume();
             sound.play("ui");
           }}
@@ -1243,6 +1275,20 @@ export default function App() {
           highlight={highlightScore}
           onRestart={() => newGame(diff, playerSide)}
           onMenu={toMenu}
+          onReview={
+            histRef.current.length > 0
+              ? () => {
+                  const rec = Int8Array.from(histRef.current.map((h) => h.move));
+                  void rec;
+                  setReview({
+                    moves: histRef.current.map((h) => ({ move: h.move, side: h.side, cap: h.cap })),
+                    startBoard: startBoardRef.current,
+                    result: over.result,
+                    title: `${diffByKey(over.diff).name}难度 · 人机对局`,
+                  });
+                }
+              : undefined
+          }
         />
       )}
 

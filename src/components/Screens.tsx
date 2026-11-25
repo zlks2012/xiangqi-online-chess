@@ -156,6 +156,8 @@ export function StartScreen({
   muted,
   toggleMute,
   onOnline,
+  onDaily,
+  onLadder,
   onInstall,
   installTip,
 }: {
@@ -168,6 +170,8 @@ export function StartScreen({
   muted: boolean;
   toggleMute: () => void;
   onOnline?: () => void;
+  onDaily?: () => void;
+  onLadder?: () => void;
   onInstall?: () => void;
   installTip?: string;
 }) {
@@ -296,7 +300,7 @@ export function StartScreen({
           </Btn>
         </section>
 
-        {/* 联机 + 安装入口 */}
+        {/* 联机 + 每日 + 天梯 + 安装入口 */}
         <section className="anim-rise grid gap-3 sm:grid-cols-2" style={{ animationDelay: "175ms" }}>
           <Btn
             variant="gold"
@@ -304,6 +308,20 @@ export function StartScreen({
             className="min-h-[54px] py-3 tracking-[0.2em]"
           >
             <IconUsers className="h-5 w-5" /> 联机对战 · 建房邀友
+          </Btn>
+          <Btn
+            variant="ghost"
+            onClick={onDaily}
+            className="min-h-[54px] py-3 tracking-[0.2em]"
+          >
+            <IconSpark className="h-5 w-5" /> 每日一题 · 今日残局
+          </Btn>
+          <Btn
+            variant="ghost"
+            onClick={onLadder}
+            className="min-h-[54px] py-3 tracking-[0.2em]"
+          >
+            <IconTrophy className="h-5 w-5" /> 天梯榜 · 联机排行
           </Btn>
           {onInstall && (
             <Btn variant="ghost" onClick={onInstall} className="min-h-[54px] py-3 tracking-[0.2em]">
@@ -465,12 +483,14 @@ export function GameOverOverlay({
   onRestart,
   onMenu,
   highlight,
+  onReview,
 }: {
   stats: GameOverStats;
   scores: ScoreEntry[];
   onRestart: () => void;
   onMenu: () => void;
   highlight?: number;
+  onReview?: () => void;
 }) {
   const d = diffByKey(stats.diff);
   const win = stats.result === "win";
@@ -559,6 +579,11 @@ export function GameOverOverlay({
             <Btn variant="primary" onClick={onRestart} className="py-3 text-base tracking-[0.25em]">
               <IconRestart className="h-5 w-5" /> 再 战
             </Btn>
+            {onReview && (
+              <Btn variant="gold" onClick={onReview} className="py-2.5">
+                <IconSpark className="h-4 w-4" /> 复盘 · AI 评注
+              </Btn>
+            )}
             <Btn variant="quiet" onClick={onMenu}>
               换难度 / 主菜单
             </Btn>
